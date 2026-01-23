@@ -24,7 +24,7 @@ int main(){
 int isPerfectSquare(int number){
 	int i;
 	
-	for(int i = 1; i * i == number; i++){
+	for(int i = 1; i * i <= number; i++){
 		if (i * i == number){
 			return 1;
 		}		
@@ -32,5 +32,6 @@ int isPerfectSquare(int number){
 	}
 	return 0;
 }
+
 
 
