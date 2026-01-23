@@ -24,11 +24,12 @@ int main(){
 int isPerfectSquare(int number){
 	int i;
 	
-	for(int i = 0; i * i = number; i++){
+	for(int i = 0; i * i == number; i++){
 		if (i * i == number){
 			return 1;
 		} else{
 			return 0;		
 		}
 	}
+
 }
