@@ -2,4 +2,5 @@
 	I would tell you guys to not expect much from the codes you'll see above, because I am really beginner at C, and I am
 	also learning how to better use Vim and Git.
 	Please, if you have recommendations on how I can improve my code and make me a better programmer.
-	Thanks for reading this, and have fun on your programming career :)
+ If you question yourself, yes I am currently watching the BroCode tutorial. I have many ideas in mind to do but I just don't know how to code them yet.
+	However, thanks for reading this, and have fun on your programming career :)
