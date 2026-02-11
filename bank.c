@@ -1,71 +1,70 @@
 #include <stdio.h>
 
-void checkBalance(float balance);
+void checkBalance(float ballance);
 float deposit();
-float withdraw(float amount);
+float withdraw(float balannce);
 
 int main(){
 
-	float balance, depositt, withdraww;
-	int choice;
+	int choice = 0;
+	float balance = 0.0f;
 
 	do{
 		printf("Welcome to the bank. What would you like to do?\n1. Check balance\n2. Deposit\n3. Withdraw\n4. Exit\n");
-		scanf("%d", choice);
-	}while(choice != 4);
+		scanf("%d", &choice);
 
-	switch(choice){
+		switch(choice){
 		case 1:
 			checkBalance(balance);
 			break;
 		case 2:
-			balance + deposit();
+			balance += deposit();
 			break;
 		case 3:
-			balance - withdraw(balance);
-		       	break;	
+			balance -= withdraw(balance);
+			break;
 		case 4:
-			printf("Thanks for using the bank!");
+			printf("\nBye bye.\n");	
+			break;
+		default:
+			printf("\nInvalid. Try again\n");
 			break;
 	}
 
-	return 0;
+	}while(choice != 4);
+
+	
 }
 
-void checkBalance(float balance){
-
-	printf("Your current balance is $%.2f\n", balance);
+void checkBalance(float ballance){
+	printf("\nYour current balance is $%.2f\n", ballance);
 }
 
 float deposit(){
+	
+	float amount = 0.0f;
 
-	float amount;
-
-	printf("How much do you want to deposit? ");
+	printf("How much would you like to deposit? ");
 	scanf("%f", &amount);
 
 	if(amount < 0){
-		printf("Invalid. Try again.\n");
+		printf("\nInvalid quantity. Please try again\n");
 	}else{
-		printf("Succesfully deposited %.2f.\n", amount);
-		return amount;
-	}
+		printf("\nSuccesfully deposited $%.2f\n", amount);
+	} return amount;
 
 }
 
-float withdraw(float balance){
+float withdraw(float balannce){
 	
-	float amount;
-	
-	printf("How much do you want to withdraw? ");
-       	scanf("%f", &amount);
+	float amount = 0.0f;
+
+	printf("How much would you like to withdraw? ");
+	scanf("%f", &amount);
 
 	if(amount < 0){
-		printf("Invalid. Try again.\n");
+		printf("\nInvalid quantity. Please try again\n");
 	}else{
-		printf("Succesfull withdraw of %.2f\n", amount);
-		return balance - amount;
-	}
-
-
+		printf("\nSuccesfully withdrawed $%.2f\n", amount);
+	} return amount;
 }
