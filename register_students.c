@@ -1,10 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 
-// Just a warning I think will be good:
-// This program creates a file named 'workers-report.txt' inside whatever
-// directory you executed this program.
-
 typedef float f32;
 typedef struct{
 	char student_name[50];
