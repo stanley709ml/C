@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef float f32;
 typedef struct{
     char name[50];
     int id;
