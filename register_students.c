@@ -1,67 +1,99 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 typedef float f32;
 typedef struct{
-	char student_name[50];
-	f32 student_grades[3];
-	f32 medium_grades;
-    f32 sum_grades;
-	int passed_failed;
+    char name[50];
+    int id;
+    f32 grade;
 } Student;
 
-void medium_grades_students(){
+void addStudents(Student students[], int* count){
+    printf("\nWhat is the ID of the student? ");
+    scanf("%d", &students[*count].id);
+    getchar();
 
-	int ammount_students;
-    int total_students;
-    int total_grades;
-    int* pammount_students = &ammount_students;
+    printf("What is the name of the student? ");
+    fgets(students[*count].name, sizeof(students[*count].name), stdin);
+    students[*count].name[strcspn(students[*count].name, "\n")] = '\0';
 
-	printf("How many students do you want to register? ");
-	scanf("%d", &ammount_students);
-	getchar();
-
-	Student students[*pammount_students];
-    total_students = sizeof(students) / sizeof(students[0]); 
-       
-    for (int i = 0; i < total_students; i++) {
-          printf("What is the name of the %d student? ", i + 1);
-          fgets(students[i].student_name, sizeof(students[i].student_name), stdin);
-          students[i].student_name[strcspn(students[i].student_name, "\n")] = '\0';
-            
-          students[i].sum_grades = 0;
-
-          for (int j = 0; j < 3; j++) {  
-            printf("What is the %d grade of %s? ", j + 1, students[i].student_name);
-            scanf("%f", &students[i].student_grades[j]);
-            
-            getchar(); 
-
-            students[i].sum_grades += students[i].student_grades[j];
-            students[i].medium_grades = students[i].sum_grades / 3;
-
-            if(students[i].medium_grades >= 7){
-                 students[i].passed_failed = 1;
-            }else{
-                students[i].passed_failed = 0;
-            }
-         }
-     }
+    printf("What is the grade of the student? ");
+    scanf("%f", &students[*count].grade);
     
-    for (int k = 0; k < total_students; k++) {
+    getchar();
 
-        if(students[k].passed_failed != 0){
-            printf("The medium of the grades from student %s is a total of %.1f and is passed.\n", students[k].student_name, students[k].medium_grades); 
-        }else{
-            printf("The medium of the grades from the student %s is a total of %.1f and is failed.\n", students[k].student_name, students[k].medium_grades);
-        }
-      
+    (*count)++;
+}
+
+void printStudents(Student students[], int count){
+    for (int i = 0; i < count; i++) {
+        printf("\nStudent #%d name: %s\nStudent #%d grade: %.1f\nStudent #%d ID: %d\n\n", i+1, students[i].name, i+1, students[i].grade, i+1, students[i].id);   
     }
 }
 
-int main(){
+float calculateAverage(Student students[], int count){
+    float grade_average = 0;
+    float grades_sum = 0;
+
+    if (count == 0){
+        return 0;
+    }else{
+        for (int i = 0; i < count; i++) {
+            grades_sum += students[i].grade;
+        }
     
-    medium_grades_students();
+    grade_average = grades_sum / count;
+ 
+    }
+
+   return grade_average;
+}
+
+Student findTopStudent(Student students[], int count){
+    Student topStudent = students[0];
+
+    for (int i = 0; i < count; i++) {
+        if (students[i].grade > topStudent.grade) {
+            strcpy(topStudent.name, students[i].name);
+            topStudent.id = students[i].id;
+            topStudent.grade = students[i].grade;
+        }
+    }
+    return topStudent;
+}
+
+int main(){
+
+    Student students[100];
+    int count = 0;
+    int choice;
+
+    while(1){
+        printf("\nWhat do you want to do?\n1 - Add Student\n2 - Show all students\n3 - Show average grade\n4 - Show top student\n5 - Exit\nChoice: ");
+        scanf("%d", &choice);
+
+        switch(choice){
+            case 1:
+                addStudents(students, &count);
+                break;
+            case 2:
+                printStudents(students, count);
+                break;
+            case 3:
+                printf("\nThe grade average of all students is %.1f\n", calculateAverage(students, count));
+                break;
+            case 4: {
+                        Student topStudent = findTopStudent(students, count);
+                        printf("\nThe top student is:\nID: %d\nName: %s\nGrade: %.1f\n", topStudent.id, topStudent.name, topStudent.grade);
+                        break;
+            }
+            case 5:
+                printf("\nBye bye!\n");
+                return 1;
+                break;
+        }
+    }
 
     return 0;
 }
