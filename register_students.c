@@ -1,98 +1,234 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <stdbool.h>
 
-typedef struct{
-    char name[50];
-    int id;
-    f32 grade;
+#define FILE_NAME "students_record.txt"
+#define WRITE_MODE "w"
+#define READ_MODE "r"
+#define NAME_SIZE 100
+
+typedef float f32;
+
+typedef struct {
+	char name[NAME_SIZE];
+	f32 grade;
 } Student;
 
-void addStudents(Student students[], int* count){
-    printf("\nWhat is the ID of the student? ");
-    scanf("%d", &students[*count].id);
-    getchar();
+Student *addStudents(int *total_students);
+Student *loadStudents(const char *file_name, int *total_students);
+Student *addMoreStudents(const char *file_name, Student *students, int *total_students);
+void saveStudents(const char *file_name, Student *students, int total_students);
+void printStudents(Student *students, int total_students);
 
-    printf("What is the name of the student? ");
-    fgets(students[*count].name, sizeof(students[*count].name), stdin);
-    students[*count].name[strcspn(students[*count].name, "\n")] = '\0';
+int main() {	
 
-    printf("What is the grade of the student? ");
-    scanf("%f", &students[*count].grade);
-    
-    getchar();
+	FILE *file = fopen(FILE_NAME, READ_MODE);
+	int total_students = 0;
+	Student *students;
 
-    (*count)++;
+	if (!file) {
+		printf("Looks like we will have to start from scratch.\n");
+		students = addStudents(&total_students);
+		printStudents(students, total_students);
+		saveStudents(FILE_NAME, students, total_students);
+		
+		char get_yesNo0[10];
+		char get_yesNo;	
+
+		do {	
+
+			printf("Do you want to add anymore students over there? (Y/N) ");
+			fgets(get_yesNo0, sizeof(get_yesNo0), stdin);
+			sscanf(get_yesNo0, " %c", &get_yesNo);	
+			get_yesNo = toupper(get_yesNo);
+		
+			if (get_yesNo == 'N') {
+				printf("Bye then.\n");
+				return 1;
+			}
+
+			students = addMoreStudents(FILE_NAME, students, &total_students);
+			printStudents(students, total_students);
+			saveStudents(FILE_NAME, students, total_students);
+
+		} while (get_yesNo == 'Y');
+
+	} else {
+
+		char get_yesNo01[10];
+		char get_yesNo0;	
+
+		printf("Looks like there's something there. Let's load it:\n");
+		students = loadStudents(FILE_NAME, &total_students);
+		printStudents(students, total_students);
+		saveStudents(FILE_NAME, students, total_students);	
+
+		do {
+		
+			printf("Do you want to add anymore students over there? (Y/N) ");
+			fgets(get_yesNo01, sizeof(get_yesNo01), stdin);
+			sscanf(get_yesNo01, " %c", &get_yesNo0);	
+			get_yesNo0 = toupper(get_yesNo0);
+		
+			if (get_yesNo0 == 'N') {
+				printf("Bye then.\n");
+				return 1;	
+			}
+
+			students = addMoreStudents(FILE_NAME, students, &total_students);
+			printStudents(students, total_students);
+			saveStudents(FILE_NAME, students, total_students);
+			
+		} while (get_yesNo0 == 'Y');
+
+	}
+	
+	free(students);
+
+	return 0;
 }
 
-void printStudents(Student students[], int count){
-    for (int i = 0; i < count; i++) {
-        printf("\nStudent #%d name: %s\nStudent #%d grade: %.1f\nStudent #%d ID: %d\n\n", i+1, students[i].name, i+1, students[i].grade, i+1, students[i].id);   
-    }
+Student *addStudents(int *total_students) {
+	Student *students;
+	int ammount_students;
+	char get_ammountStudents[20];
+	char get_gradeOfStudent[10];
+
+	do {
+	
+		printf("How many students do you want to register? ");
+		fgets(get_ammountStudents, sizeof(get_ammountStudents), stdin);
+		sscanf(get_ammountStudents, "%d", &ammount_students);	
+
+		if (ammount_students <= 0) {
+			printf("Invalid ammount of students, try again.\n");	
+		}
+
+	} while (ammount_students <= 0);
+
+	students = malloc(ammount_students * sizeof(Student));
+
+	if (students == NULL) {
+		printf("Memory allocation failed (function: addStudents)\n");
+		exit(1);
+	}
+
+	for (int i = 0; i < ammount_students; i++) {
+		printf("What is the name of the %d student? ", i+1);
+		fgets(students[i].name, sizeof(students[i].name), stdin);
+		students[i].name[strcspn(students[i].name, "\n")] = '\0';
+
+		printf("What is the grade of the %d student? ", i+1);
+		fgets(get_gradeOfStudent, sizeof(get_gradeOfStudent), stdin);
+		sscanf(get_gradeOfStudent, "%f", &students[i].grade);
+
+		(*total_students)++;
+	}
+
+	return students;
+}
+Student *loadStudents(const char *file_name, int *total_students) {
+	FILE *file = fopen(file_name, READ_MODE);
+	Student *students;
+	(*total_students) = 0;
+
+	if (file == NULL) {
+		printf("File not found (function: loadStudents)\n");
+		exit(1);
+	}	
+	
+	char buffer[1024];
+	int ammount_students = 0;
+
+	while (fgets(buffer, sizeof(buffer), file)) {
+		ammount_students++;			
+	}
+
+	rewind(file);
+
+	students = malloc(ammount_students * sizeof(Student));
+
+	if (students == NULL) {
+		printf("Memory allocation failed (function: loadStudents)\n");
+		exit(1);
+	}
+
+	for (int i = 0; i < ammount_students; i++) {
+		fgets(buffer, sizeof(buffer), file);
+		sscanf(buffer, "%[^:]: %f", students[i].name, &students[i].grade);
+		(*total_students)++;	
+	}
+	
+	fclose(file);
+	return students;	
 }
 
-float calculateAverage(Student students[], int count){
-    float grade_average = 0;
-    float grades_sum = 0;
+Student *addMoreStudents(const char *file_name, Student *students, int *total_students) {
+	int ammount_extra_students = 0;
+	int m = 0;
+	char get_extra_students[10];
+	char get_gradeOf_extra_student[10];
 
-    if (count == 0){
-        return 0;
-    }else{
-        for (int i = 0; i < count; i++) {
-            grades_sum += students[i].grade;
-        }
-    
-    grade_average = grades_sum / count;
- 
-    }
+	
+	do {
 
-   return grade_average;
+		printf("How many more students do you want to add? ");
+		fgets(get_extra_students, sizeof(get_extra_students), stdin);
+		sscanf(get_extra_students, "%d", &ammount_extra_students);	
+	
+		if (ammount_extra_students <= 0) {
+			printf("Invalid ammount of students.\n");
+		}
+
+	} while (ammount_extra_students <= 0);
+
+	int ammount_students = ammount_extra_students + (*total_students);	
+
+	students = realloc(students, ammount_students * sizeof(Student));
+
+	if (students == NULL) {
+		printf("Memory reallocation failed (function: addMoreStudents)\n");
+		exit(1);
+	}
+
+	for (int i = (*total_students); i < ammount_students; i++) {
+		printf("What is the name of the %d new student? ", m+1);
+		fgets(students[i].name, sizeof(students[i].name), stdin);
+		students[i].name[strcspn(students[i].name, "\n")] = '\0';
+
+		printf("What is the grade of the %d new student? ", m+1);
+		fgets(get_gradeOf_extra_student, sizeof(get_gradeOf_extra_student), stdin);
+		sscanf(get_gradeOf_extra_student, "%f", &students[i].grade);
+
+		(*total_students)++;
+		m++;
+	}
+
+	return students;
+
 }
 
-Student findTopStudent(Student students[], int count){
-    Student topStudent = students[0];
+void saveStudents(const char *file_name, Student *students, int total_students) {
+	FILE *file = fopen(file_name, WRITE_MODE);
+	
+	if (file == NULL) {
+		printf("File not found (function: saveStudents)\n");
+		exit(1);
+	}
 
-    for (int i = 0; i < count; i++) {
-        if (students[i].grade > topStudent.grade) {
-            strcpy(topStudent.name, students[i].name);
-            topStudent.id = students[i].id;
-            topStudent.grade = students[i].grade;
-        }
-    }
-    return topStudent;
+	for (int i = 0; i < total_students; i++) {
+		fprintf(file, "%s: %.1f\n", students[i].name, students[i].grade);
+	}	
+
+	fclose(file);
+}
+void printStudents(Student *students, int total_students) {
+	
+	for (int i = 0; i < total_students; i++) {
+		printf("%s: %.1f\n", students[i].name, students[i].grade);
+	}
+
 }
 
-int main(){
-
-    Student students[100];
-    int count = 0;
-    int choice;
-
-    while(1){
-        printf("\nWhat do you want to do?\n1 - Add Student\n2 - Show all students\n3 - Show average grade\n4 - Show top student\n5 - Exit\nChoice: ");
-        scanf("%d", &choice);
-
-        switch(choice){
-            case 1:
-                addStudents(students, &count);
-                break;
-            case 2:
-                printStudents(students, count);
-                break;
-            case 3:
-                printf("\nThe grade average of all students is %.1f\n", calculateAverage(students, count));
-                break;
-            case 4: {
-                        Student topStudent = findTopStudent(students, count);
-                        printf("\nThe top student is:\nID: %d\nName: %s\nGrade: %.1f\n", topStudent.id, topStudent.name, topStudent.grade);
-                        break;
-            }
-            case 5:
-                printf("\nBye bye!\n");
-                return 1;
-                break;
-        }
-    }
-
-    return 0;
-}
